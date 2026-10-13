@@ -1,0 +1,51 @@
+What is .env?
+-------------
+.env is a configuration file used to store secret or environment-specific values outside your Django code.
+
+decouple in Django
+-----------------
+decouple is a Python package used to read values from your .env file in Django.
+    pip install python-decouple
+
+.gitignore in Django
+-------------------
+.gitignore tells Git which files/folders should not be uploaded to GitHub.
+
+BMR CALUCULATION
+-----------------
+• Male formula: BMR = (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) + 5
+• Female formula: BMR = (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years) - 161
+
+1. What is BaseBackend?
+----------------------
+Django provides BaseBackend so you can define your own logic for authenticating users, 
+instead of relying only on the default username/password authentication.
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'diet_app.backends.CustomAuthBackend',
+]
+--------------code----------------------------
+from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class CustomAuthBackend(BaseBackend):
+    def authenticate(self, request, username=None, password=None):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return None
+
+        if user.check_password(password) and user.is_active:
+            return user
+
+        return None
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+----------------------------------------------------------
