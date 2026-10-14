@@ -31,4 +31,5 @@ urlpatterns = [
     path('retrive/<int:pk>',FoodLogRetriveView.as_view()),
     path('update/<int:pk>',FoodLogUpdateView.as_view()),
     path('delete/<int:pk>',FoodLogDeleteView.as_view()),
+    path('summary/',DietSummaryView.as_view())
 ]

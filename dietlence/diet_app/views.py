@@ -4,6 +4,10 @@ from diet_app.models import *
 from diet_app.utility_func import *
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from django.utils import timezone
+from django.db.models import Sum
+from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView,RetrieveAPIView,UpdateAPIView,ListAPIView,DestroyAPIView
 from diet_app.permission import IsOwner,IsDeleteOwner
 # Create your views here.
@@ -81,6 +85,23 @@ class FoodLogDeleteView(DestroyAPIView):
     permission_classes = [IsDeleteOwner]
     serializer_class = FoodLogSerializer
     queryset = FoodLog.objects.all()
+
+class DietSummaryView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsOwner]
+    def get(self,request,*args,**kwargs):
+        cur_date = timezone.now()
+        quuryset = FoodLog.objects.filter(created_at__date = cur_date,owner=request.user)
+        calories = quuryset.values('calories').aggregate(Sum('calories'))
+        print(calories)
+        print(request.user.profile.bmr)
+        context ={
+            "total_calarie_consumed":calories.get('calories__sum'),
+            "daily_target":request.user.profile.bmr,
+            "balance":request.user.profile.bmr-calories.get('calories__sum')
+        }
+        return Response(context)
+
     
 
 
